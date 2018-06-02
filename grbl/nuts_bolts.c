@@ -20,7 +20,7 @@
 */
 
 #include "grbl.h"
-
+#include "hal.h"
 
 #define MAX_INT_DIGITS 8 // Maximum number of digits in int32 (and float)
 

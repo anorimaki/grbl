@@ -541,16 +541,14 @@ static void protocol_exec_rt_suspend()
   #endif
 
   while (sys.suspend) {
-
     if (sys.abort) { return; }
 
     // Block until initial hold is complete and the machine has stopped motion.
     if (sys.suspend & SUSPEND_HOLD_COMPLETE) {
-
       // Parking manager. Handles de/re-energizing, switch state checks, and parking motions for 
       // the safety door and sleep states.
       if (sys.state & (STATE_SAFETY_DOOR | STATE_SLEEP)) {
-      
+   
         // Handles retraction motions and de-energizing.
         if (bit_isfalse(sys.suspend,SUSPEND_RETRACT_COMPLETE)) {
 
@@ -621,7 +619,6 @@ static void protocol_exec_rt_suspend()
 
           sys.suspend &= ~(SUSPEND_RESTART_RETRACT);
           sys.suspend |= SUSPEND_RETRACT_COMPLETE;
-
         } else {
 
           
@@ -644,7 +641,6 @@ static void protocol_exec_rt_suspend()
 
           // Handles parking restore and safety door resume.
           if (sys.suspend & SUSPEND_INITIATE_RESTORE) {
-
             #ifdef PARKING_ENABLE
               // Execute fast restore motion to the pull-out position. Parking requires homing enabled.
               // NOTE: State is will remain DOOR, until the de-energizing and retract is complete.
@@ -662,7 +658,6 @@ static void protocol_exec_rt_suspend()
                 }
               }
             #endif
-
             // Delayed Tasks: Restart spindle and coolant, delay to power-up, then resume cycle.
             if (gc_state.modal.spindle != SPINDLE_DISABLE) {
               // Block if safety door re-opened during prior restore actions.
@@ -672,7 +667,7 @@ static void protocol_exec_rt_suspend()
                   bit_true(sys.step_control, STEP_CONTROL_UPDATE_SPINDLE_PWM);
                 } else {
                   spindle_set_state((restore_condition & (PL_COND_FLAG_SPINDLE_CW | PL_COND_FLAG_SPINDLE_CCW)), restore_spindle_speed);
-                  delay_sec(SAFETY_DOOR_SPINDLE_DELAY, DELAY_MODE_SYS_SUSPEND);
+              //    delay_sec(SAFETY_DOOR_SPINDLE_DELAY, DELAY_MODE_SYS_SUSPEND);
                 }
               }
             }
@@ -681,10 +676,9 @@ static void protocol_exec_rt_suspend()
               if (bit_isfalse(sys.suspend,SUSPEND_RESTART_RETRACT)) {
                 // NOTE: Laser mode will honor this delay. An exhaust system is often controlled by this pin.
                 coolant_set_state((restore_condition & (PL_COND_FLAG_COOLANT_FLOOD | PL_COND_FLAG_COOLANT_FLOOD)));
-                delay_sec(SAFETY_DOOR_COOLANT_DELAY, DELAY_MODE_SYS_SUSPEND);
+              //  delay_sec(SAFETY_DOOR_COOLANT_DELAY, DELAY_MODE_SYS_SUSPEND);
               }
             }
-
             #ifdef PARKING_ENABLE
               // Execute slow plunge motion from pull-out position to resume position.
               #ifdef ENABLE_PARKING_OVERRIDE_CONTROL
@@ -711,9 +705,7 @@ static void protocol_exec_rt_suspend()
               system_set_exec_state_flag(EXEC_CYCLE_START); // Set to resume program.
             }
           }
-
         }
-
 
       } else {
 
@@ -757,6 +749,5 @@ static void protocol_exec_rt_suspend()
     }
 
     protocol_exec_rt_system();
-
   }
 }

@@ -19,11 +19,13 @@
 */
 
 #include "grbl.h"
+#include "hal.h"
 
 
 void coolant_init()
 {
-  COOLANT_FLOOD_DDR |= (1 << COOLANT_FLOOD_BIT); // Configure as output pin
+  //COOLANT_FLOOD_DDR |= (1 << COOLANT_FLOOD_BIT); // Configure as output pin
+  IO_SET_OUTPUT(COOLANT_FLOOD_DDR, COOLANT_FLOOD_BIT);
   #ifdef ENABLE_M7
     COOLANT_MIST_DDR |= (1 << COOLANT_MIST_BIT);
   #endif

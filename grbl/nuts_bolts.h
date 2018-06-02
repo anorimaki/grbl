@@ -22,6 +22,9 @@
 #ifndef nuts_bolts_h
 #define nuts_bolts_h
 
+#define _XTAL_FREQ  64000000
+#define F_CPU (_XTAL_FREQ/4)
+
 #define false 0
 #define true 1
 

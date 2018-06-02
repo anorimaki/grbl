@@ -20,6 +20,7 @@
 */
 
 #include "grbl.h"
+#include "hal.h"
 
 #define RX_RING_BUFFER (RX_BUFFER_SIZE+1)
 #define TX_RING_BUFFER (TX_BUFFER_SIZE+1)
@@ -69,16 +70,19 @@ void serial_init()
     uint16_t UBRR0_value = ((F_CPU / (8L * BAUD_RATE)) - 1)/2 ;
     UCSR0A &= ~(1 << U2X0); // baud doubler off  - Only needed on Uno XXX
   #else
-    uint16_t UBRR0_value = ((F_CPU / (4L * BAUD_RATE)) - 1)/2;
-    UCSR0A |= (1 << U2X0);  // baud doubler on for high baud rates, i.e. 115200
+    //uint16_t UBRR0_value = ((F_CPU / (4L * BAUD_RATE)) - 1)/2;
+    //UCSR0A |= (1 << U2X0);  // baud doubler on for high baud rates, i.e. 115200
   #endif
-  UBRR0H = UBRR0_value >> 8;
-  UBRR0L = UBRR0_value;
-
+  //UBRR0H = UBRR0_value >> 8;
+  //UBRR0L = UBRR0_value;
+  
   // enable rx, tx, and interrupt on complete reception of a byte
-  UCSR0B |= (1<<RXEN0 | 1<<TXEN0 | 1<<RXCIE0);
+  //UCSR0B |= (1<<RXEN0 | 1<<TXEN0 | 1<<RXCIE0);
+  
 
   // defaults to 8-bit, no parity, 1 stop bit
+    
+    uart_init();
 }
 
 
@@ -93,32 +97,43 @@ void serial_write(uint8_t data) {
     // TODO: Restructure st_prep_buffer() calls to be executed here during a long print.
     if (sys_rt_exec_state & EXEC_RESET) { return; } // Only check for abort to avoid an endless loop.
   }
-
-  // Store data and advance head
-  serial_tx_buffer[serial_tx_buffer_head] = data;
-  serial_tx_buffer_head = next_head;
+  
+  if ( uart_tx_interrupt_is_enabled() ) {
+    // Store data and advance head
+    serial_tx_buffer[serial_tx_buffer_head] = data;
+    serial_tx_buffer_head = next_head;
+  }
+  else {
+    uart_send( data );
+  }
 
   // Enable Data Register Empty Interrupt to make sure tx-streaming is running
-  UCSR0B |=  (1 << UDRIE0);
+  // UCSR0B |=  (1 << UDRIE0);
+  uart_tx_interrupt_enable();
 }
 
 
 // Data Register Empty Interrupt handler
-ISR(SERIAL_UDRE)
+ISR(uart_tx_isr)
 {
   uint8_t tail = serial_tx_buffer_tail; // Temporary serial_tx_buffer_tail (to optimize for volatile)
-
+  
+  // Turn off Data Register Empty Interrupt to stop tx-streaming if this concludes the transfer
+  if (tail == serial_tx_buffer_head) {
+    // UCSR0B &= ~(1 << UDRIE0);
+    uart_tx_interrupt_disable();
+    return;
+  }
+  
   // Send a byte from the buffer
-  UDR0 = serial_tx_buffer[tail];
+  // UDR0 = serial_tx_buffer[tail];
+  uart_send( serial_tx_buffer[tail] );
 
   // Update tail position
   tail++;
   if (tail == TX_RING_BUFFER) { tail = 0; }
 
   serial_tx_buffer_tail = tail;
-
-  // Turn off Data Register Empty Interrupt to stop tx-streaming if this concludes the transfer
-  if (tail == serial_tx_buffer_head) { UCSR0B &= ~(1 << UDRIE0); }
 }
 
 
@@ -140,9 +155,9 @@ uint8_t serial_read()
 }
 
 
-ISR(SERIAL_RX)
+ISR(uart_rx_isr)
 {
-  uint8_t data = UDR0;
+  uint8_t data = UART_RCV_DATA;
   uint8_t next_head;
 
   // Pick off realtime command characters directly from the serial stream. These characters are

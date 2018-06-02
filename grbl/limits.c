@@ -20,6 +20,8 @@
 */
 
 #include "grbl.h"
+#include "hal.h"
+#include "missign.h"
 
 
 // Homing axis search distance multiplier. Computed by this value times the cycle travel.
@@ -32,7 +34,8 @@
 
 void limits_init()
 {
-  LIMIT_DDR &= ~(LIMIT_MASK); // Set as input pins
+  //LIMIT_DDR &= ~(LIMIT_MASK); // Set as input pins
+  IO_SET_INPUT( LIMIT_DDR, LIMIT_MASK );
 
   #ifdef DISABLE_LIMIT_PIN_PULL_UP
     LIMIT_PORT &= ~(LIMIT_MASK); // Normal low operation. Requires external pull-down.
@@ -41,8 +44,9 @@ void limits_init()
   #endif
 
   if (bit_istrue(settings.flags,BITFLAG_HARD_LIMIT_ENABLE)) {
-    LIMIT_PCMSK |= LIMIT_MASK; // Enable specific pins of the Pin Change Interrupt
-    PCICR |= (1 << LIMIT_INT); // Enable Pin Change Interrupt
+    //LIMIT_PCMSK |= LIMIT_MASK; // Enable specific pins of the Pin Change Interrupt
+    //PCICR |= (1 << LIMIT_INT); // Enable Pin Change Interrupt
+    limits_interrupts_enable();
   } else {
     limits_disable();
   }
@@ -58,8 +62,9 @@ void limits_init()
 // Disables hard limits.
 void limits_disable()
 {
-  LIMIT_PCMSK &= ~LIMIT_MASK;  // Disable specific pins of the Pin Change Interrupt
-  PCICR &= ~(1 << LIMIT_INT);  // Disable Pin Change Interrupt
+  //LIMIT_PCMSK &= ~LIMIT_MASK;  // Disable specific pins of the Pin Change Interrupt
+  //PCICR &= ~(1 << LIMIT_INT);  // Disable Pin Change Interrupt
+  limits_interrupts_disable();
 }
 
 
@@ -96,8 +101,9 @@ uint8_t limits_get_state()
 // special pinout for an e-stop, but it is generally recommended to just directly connect
 // your e-stop switch to the Arduino reset pin, since it is the most correct way to do this.
 #ifndef ENABLE_SOFTWARE_DEBOUNCE
-  ISR(LIMIT_INT_vect) // DEFAULT: Limit pin change interrupt process.
+  ISR(limits_isr) // DEFAULT: Limit pin change interrupt process.
   {
+LATCbits.LATC5=1;    
     // Ignore limit switches if already in an alarm state or in-process of executing an alarm.
     // When in the alarm state, Grbl should have been reset or will force a reset, so any pending
     // moves in the planner and serial buffers are all cleared and newly sent blocks will be
@@ -117,6 +123,7 @@ uint8_t limits_get_state()
         #endif
       }
     }
+LATCbits.LATC5=0;  
   }
 #else // OPTIONAL: Software debounce limit pin routine.
   // Upon limit pin change, enable watchdog timer to create a short delay. 

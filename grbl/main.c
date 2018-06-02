@@ -20,7 +20,8 @@
 */
 
 #include "grbl.h"
-
+#include "hal.h"
+#include <stdio.h>
 
 // Declare system global variable structure
 system_t sys;
@@ -35,10 +36,11 @@ volatile uint8_t sys_rt_exec_accessory_override; // Global realtime executor bit
   volatile uint8_t sys_rt_exec_debug;
 #endif
 
-
+  
 int main(void)
 {
   // Initialize system upon power-up.
+  hal_init();
   serial_init();   // Setup serial baud rate and interrupts
   settings_init(); // Load Grbl settings from EEPROM
   stepper_init();  // Configure stepper pins and interrupt timers

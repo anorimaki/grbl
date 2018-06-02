@@ -19,18 +19,22 @@
 */
 
 #include "grbl.h"
+#include "hal.h"
 
 
 void system_init()
 {
-  CONTROL_DDR &= ~(CONTROL_MASK); // Configure as input pins
+  //CONTROL_DDR &= ~(CONTROL_MASK); // Configure as input pins
+  IO_SET_INPUT( CONTROL_DDR, CONTROL_MASK );
+  
   #ifdef DISABLE_CONTROL_PIN_PULL_UP
     CONTROL_PORT &= ~(CONTROL_MASK); // Normal low operation. Requires external pull-down.
   #else
     CONTROL_PORT |= CONTROL_MASK;   // Enable internal pull-up resistors. Normal high operation.
   #endif
-  CONTROL_PCMSK |= CONTROL_MASK;  // Enable specific pins of the Pin Change Interrupt
-  PCICR |= (1 << CONTROL_INT);   // Enable Pin Change Interrupt
+  //CONTROL_PCMSK |= CONTROL_MASK;  // Enable specific pins of the Pin Change Interrupt
+  //PCICR |= (1 << CONTROL_INT);   // Enable Pin Change Interrupt
+  system_interrupts_enable();
 }
 
 
@@ -60,8 +64,9 @@ uint8_t system_control_get_state()
 // only the realtime command execute variable to have the main program execute these when
 // its ready. This works exactly like the character-based realtime commands when picked off
 // directly from the incoming serial data stream.
-ISR(CONTROL_INT_vect)
+ISR(control_isr)
 {
+LATCbits.LATC5=1;  
   uint8_t pin = system_control_get_state();
   if (pin) {
     if (bit_istrue(pin,CONTROL_PIN_INDEX_RESET)) {
@@ -77,6 +82,7 @@ ISR(CONTROL_INT_vect)
     #endif
     }
   }
+LATCbits.LATC5=0;  
 }
 
 

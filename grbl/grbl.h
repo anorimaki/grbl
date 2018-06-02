@@ -26,13 +26,8 @@
 #define GRBL_VERSION_BUILD "20170801"
 
 // Define standard libraries used by Grbl.
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
-#include <avr/wdt.h>
-#include <util/delay.h>
+#include <xc.h>
 #include <math.h>
-#include <inttypes.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>

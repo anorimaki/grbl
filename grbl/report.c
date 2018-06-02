@@ -27,7 +27,7 @@
 */
 
 #include "grbl.h"
-
+#include "hal.h"
 
 // Internal report utilities to reduce flash with repetitive tasks turned into functions.
 void report_util_setting_prefix(uint8_t n) { serial_write('$'); print_uint8_base10(n); serial_write('='); }
