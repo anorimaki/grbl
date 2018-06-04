@@ -82,7 +82,7 @@ void serial_init()
 
   // defaults to 8-bit, no parity, 1 stop bit
     
-    uart_init();
+    hal_serial_init();
 }
 
 
@@ -98,18 +98,18 @@ void serial_write(uint8_t data) {
     if (sys_rt_exec_state & EXEC_RESET) { return; } // Only check for abort to avoid an endless loop.
   }
   
-  if ( uart_tx_interrupt_is_enabled() ) {
+  if ( hal_serial_tx_interrupt_is_enabled() ) {
     // Store data and advance head
     serial_tx_buffer[serial_tx_buffer_head] = data;
     serial_tx_buffer_head = next_head;
   }
   else {
-    uart_send( data );
+    hal_serial_send( data );
   }
 
   // Enable Data Register Empty Interrupt to make sure tx-streaming is running
   // UCSR0B |=  (1 << UDRIE0);
-  uart_tx_interrupt_enable();
+  hal_serial_tx_interrupt_enable();
 }
 
 
@@ -121,13 +121,13 @@ ISR(uart_tx_isr)
   // Turn off Data Register Empty Interrupt to stop tx-streaming if this concludes the transfer
   if (tail == serial_tx_buffer_head) {
     // UCSR0B &= ~(1 << UDRIE0);
-    uart_tx_interrupt_disable();
+    hal_serial_tx_interrupt_disable();
     return;
   }
   
   // Send a byte from the buffer
   // UDR0 = serial_tx_buffer[tail];
-  uart_send( serial_tx_buffer[tail] );
+  hal_serial_send( serial_tx_buffer[tail] );
 
   // Update tail position
   tail++;

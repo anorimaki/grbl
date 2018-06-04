@@ -34,7 +34,7 @@ void system_init()
   #endif
   //CONTROL_PCMSK |= CONTROL_MASK;  // Enable specific pins of the Pin Change Interrupt
   //PCICR |= (1 << CONTROL_INT);   // Enable Pin Change Interrupt
-  system_interrupts_enable();
+  hal_system_interrupts_enable();
 }
 
 

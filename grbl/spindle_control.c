@@ -38,7 +38,7 @@ void spindle_init()
     IO_SET_OUTPUT( SPINDLE_PWM_DDR, 1<<SPINDLE_PWM_BIT );
     //SPINDLE_TCCRA_REGISTER = SPINDLE_TCCRA_INIT_MASK; // Configure PWM output compare timer
     //SPINDLE_TCCRB_REGISTER = SPINDLE_TCCRB_INIT_MASK;
-    spindle_pwm_init();
+    hal_spindle_pwm_init();
     #ifdef USE_SPINDLE_DIR_AS_ENABLE_PIN
       // SPINDLE_ENABLE_DDR |= (1<<SPINDLE_ENABLE_BIT); // Configure as output pin.
       IO_SET_OUTPUT( SPINDLE_ENABLE_DDR, 1<<SPINDLE_ENABLE_BIT );
@@ -75,7 +75,7 @@ uint8_t spindle_get_state()
 	    #endif
     #else
       //if (SPINDLE_TCCRA_REGISTER & (1<<SPINDLE_COMB_BIT)) { // Check if PWM is enabled.
-      if ( spindle_pwm_enabled() ) {
+      if ( hal_spindle_pwm_enabled() ) {
         if (SPINDLE_DIRECTION_PORT & (1<<SPINDLE_DIRECTION_BIT)) { return(SPINDLE_STATE_CCW); }
         else { return(SPINDLE_STATE_CW); }
       }
@@ -101,7 +101,7 @@ void spindle_stop()
 {
   #ifdef VARIABLE_SPINDLE
     // SPINDLE_TCCRA_REGISTER &= ~(1<<SPINDLE_COMB_BIT); // Disable PWM. Output voltage is zero.
-    spindle_pwm_disable();
+    hal_spindle_pwm_disable();
     #ifdef USE_SPINDLE_DIR_AS_ENABLE_PIN
       #ifdef INVERT_SPINDLE_ENABLE_PIN
         SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
@@ -139,10 +139,10 @@ void spindle_stop()
     #else
       if (pwm_value == SPINDLE_PWM_OFF_VALUE) {
         //SPINDLE_TCCRA_REGISTER &= ~(1<<SPINDLE_COMB_BIT); // Disable PWM. Output voltage is zero.
-        spindle_pwm_disable();
+        hal_spindle_pwm_disable();
       } else {
         //SPINDLE_TCCRA_REGISTER |= (1<<SPINDLE_COMB_BIT); // Ensure PWM output is enabled.
-        spindle_pwm_enable();
+        hal_spindle_pwm_enable();
       }
     #endif
   }

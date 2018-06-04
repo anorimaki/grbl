@@ -26,7 +26,6 @@
 #define GRBL_VERSION_BUILD "20170801"
 
 // Define standard libraries used by Grbl.
-#include <xc.h>
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>

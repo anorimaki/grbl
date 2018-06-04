@@ -1,9 +1,8 @@
-#include "hal.h"
-#include "grbl.h"
+#include "../hal.h"
+#include "../grbl.h"
 
 
-void OSCILLATOR_Initialize(void)
-{
+static void initialize_oscillator(void) {
     // SCS FOSC; HFIOFS not stable; IDLEN disabled; IRCF 16MHz_HF; 
     OSCCON = 0x70;
     // SOSCGO disabled; MFIOSEL disabled; SOSCDRV Low Power; 
@@ -16,7 +15,7 @@ void OSCILLATOR_Initialize(void)
 
 
 void hal_init() {
-  OSCILLATOR_Initialize();
+  initialize_oscillator();
   
   // PORTB pull-ups are enabled by individual port TRIS values
   INTCON2bits.RBPU = 0;
@@ -49,7 +48,7 @@ void hal_init() {
  *  TCCR1A &= ~((1<<WGM11) | (1<<WGM10));
  *  TCCR1A &= ~((1<<COM1A1) | (1<<COM1A0) | (1<<COM1B1) | (1<<COM1B0)); // Disconnect OC1 output
  */
-void stepper_pulse_period_engine_init() {
+void hal_stepper_pulse_period_engine_init() {
   //************** Timer1 configuration
   // T1GSS T1G_pin; TMR1GE disabled; T1GTM disabled; T1GPOL low; T1GGO done; T1GSPM disabled; 
   T1GCON = 0x00;
@@ -71,7 +70,7 @@ void stepper_pulse_period_engine_init() {
  *  Enable Stepper Driver Interrupt
  *  TIMSK1 |= (1<<OCIE1A);  
  */
-void stepper_pulse_period_engine_start() {
+void hal_stepper_pulse_period_engine_start() {
   // Clear the CCP5 interrupt flag
   //PIR4bits.CCP5IF = 0;
   
@@ -84,7 +83,7 @@ void stepper_pulse_period_engine_start() {
  *  TIMSK1 &= ~(1<<OCIE1A);         // Disable Timer1 interrupt
  *  TCCR1B = (TCCR1B & ~((1<<CS12) | (1<<CS11))) | (1<<CS10); // Reset clock to no prescaling.
  */
-void stepper_pulse_period_engine_stop() {
+void hal_stepper_pulse_period_engine_stop() {
   // Disable the CCP5 interrupt
   PIE4bits.CCP5IE = 0;
   
@@ -100,7 +99,7 @@ void stepper_pulse_period_engine_stop() {
  *  TCCR0B = 0; // Disable Timer0 until needed
  *  TIMSK0 |= (1<<TOIE0); // Enable Timer0 overflow interrupt
  */
-void stepper_pulse_length_engine_init() {
+void hal_stepper_pulse_length_engine_init() {
   // TMRI - high priority
   INTCON2bits.TMR0IP = 1;
   
@@ -126,7 +125,7 @@ void stepper_pulse_length_engine_init() {
  *  SPINDLE_TCCRA_REGISTER = SPINDLE_TCCRA_INIT_MASK; // Configure PWM output compare timer
  *  SPINDLE_TCCRB_REGISTER = SPINDLE_TCCRB_INIT_MASK;
  */
-void spindle_pwm_init() {
+void hal_spindle_pwm_init() {
   // Selecting Timer 2 for CCP2
   CCPTMRSbits.C2TSEL = 0;
     
@@ -137,7 +136,7 @@ void spindle_pwm_init() {
 }
 
 
-void uart_init() {
+void hal_serial_init() {
   // disable interrupts before changing states
   PIE1bits.RC1IE = 0;
   PIE1bits.TX1IE = 0;
@@ -169,8 +168,7 @@ void uart_init() {
 }
 
 
-unsigned char eeprom_get_char( unsigned int addr )
-{
+unsigned char eeprom_get_char( unsigned int addr ) {
     EEADRH = addr >> 8;
 	EEADR = (unsigned char)(addr & 0xFF);
     EECON1bits.CFGS = 0;
@@ -183,8 +181,7 @@ unsigned char eeprom_get_char( unsigned int addr )
 }
 
 
-void eeprom_put_char( unsigned int addr, unsigned char new_value )
-{
+void eeprom_put_char( unsigned int addr, unsigned char new_value ) {
 	unsigned char GIEBitValue = INTCONbits.GIE;
 
     EEADRH = addr >> 8;

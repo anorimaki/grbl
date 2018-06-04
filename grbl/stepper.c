@@ -232,7 +232,7 @@ void st_wake_up()
 
   // Enable Stepper Driver Interrupt
   //TIMSK1 |= (1<<OCIE1A);
-  stepper_pulse_period_engine_start();
+  hal_stepper_pulse_period_engine_start();
 }
 
 
@@ -242,7 +242,7 @@ void st_go_idle()
   // Disable Stepper Driver Interrupt. Allow Stepper Port Reset Interrupt to finish, if active.
   //TIMSK1 &= ~(1<<OCIE1A); // Disable Timer1 interrupt
   //TCCR1B = (TCCR1B & ~((1<<CS12) | (1<<CS11))) | (1<<CS10); // Reset clock to no prescaling.
-  stepper_pulse_period_engine_stop();
+  hal_stepper_pulse_period_engine_stop();
   busy = false;
 
   // Set stepper driver idle state, disabled or enabled, depending on settings and circumstances.
@@ -325,7 +325,7 @@ ISR(stepper_pulse_rising_edge)
   // exactly settings.pulse_microseconds microseconds, independent of the main Timer1 prescaler.
   //TCNT0 = st.step_pulse_time; // Reload Timer0 counter
   //TCCR0B = (1<<CS01); // Begin Timer0. Full speed, 1/8 prescaler
-  stepper_pulse_length_engine_start( st.step_pulse_time );
+  hal_stepper_pulse_length_engine_start( st.step_pulse_time );
 
   busy = true;
   sei(); // Re-enable interrupts to allow Stepper Port Reset Interrupt to fire on-time.
@@ -345,7 +345,7 @@ ISR(stepper_pulse_rising_edge)
 
       // Initialize step segment timing per step and load number of steps to execute.
       //OCR1A = st.exec_segment->cycles_per_tick;
-      stepper_pulse_period_set( st.exec_segment->cycles_per_tick );
+      hal_stepper_pulse_period_set( st.exec_segment->cycles_per_tick );
       
       st.step_count = st.exec_segment->n_step; // NOTE: Can sometimes be zero when moving slow.
       // If the new segment starts a new planner block, initialize stepper variables and counters.
@@ -456,7 +456,7 @@ ISR(stepper_pulse_falling_edge)
   STEP_PORT = (STEP_PORT & ~STEP_MASK) | (step_port_invert_mask & STEP_MASK);
   
   // TCCR0B = 0; // Disable Timer0 to prevent re-entering this interrupt when it's not needed.
-  stepper_pulse_length_engine_stop();
+  hal_stepper_pulse_length_engine_stop();
 }
 #ifdef STEP_PULSE_DELAY
   // This interrupt is used only when STEP_PULSE_DELAY is enabled. Here, the step pulse is
@@ -525,7 +525,7 @@ void stepper_init()
   // TCCR1B |=  (1<<WGM12);
   // TCCR1A &= ~((1<<WGM11) | (1<<WGM10));
   // TCCR1A &= ~((1<<COM1A1) | (1<<COM1A0) | (1<<COM1B1) | (1<<COM1B0)); // Disconnect OC1 output
-  stepper_pulse_period_engine_init();  
+  hal_stepper_pulse_period_engine_init();  
           
   // TCCR1B = (TCCR1B & ~((1<<CS12) | (1<<CS11))) | (1<<CS10); // Set in st_go_idle().
   // TIMSK1 &= ~(1<<OCIE1A);  // Set in st_go_idle().
@@ -535,7 +535,7 @@ void stepper_init()
   // TCCR0A = 0; // Normal operation
   // TCCR0B = 0; // Disable Timer0 until needed
   // TIMSK0 |= (1<<TOIE0); // Enable Timer0 overflow interrupt
-  stepper_pulse_length_engine_init();
+  hal_stepper_pulse_length_engine_init();
   
   #ifdef STEP_PULSE_DELAY
     TIMSK0 |= (1<<OCIE0A); // Enable Timer0 Compare Match A interrupt

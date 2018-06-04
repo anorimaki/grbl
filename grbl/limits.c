@@ -46,7 +46,7 @@ void limits_init()
   if (bit_istrue(settings.flags,BITFLAG_HARD_LIMIT_ENABLE)) {
     //LIMIT_PCMSK |= LIMIT_MASK; // Enable specific pins of the Pin Change Interrupt
     //PCICR |= (1 << LIMIT_INT); // Enable Pin Change Interrupt
-    limits_interrupts_enable();
+    hal_limits_interrupts_enable();
   } else {
     limits_disable();
   }
@@ -64,7 +64,7 @@ void limits_disable()
 {
   //LIMIT_PCMSK &= ~LIMIT_MASK;  // Disable specific pins of the Pin Change Interrupt
   //PCICR &= ~(1 << LIMIT_INT);  // Disable Pin Change Interrupt
-  limits_interrupts_disable();
+  hal_limits_interrupts_disable();
 }
 
 
