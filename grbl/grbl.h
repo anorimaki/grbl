@@ -38,7 +38,7 @@
 #include "settings.h"
 #include "system.h"
 #include "defaults.h"
-#include "cpu_map.h"
+#include "grbl_hal.h"
 #include "planner.h"
 #include "coolant_control.h"
 #include "eeprom.h"

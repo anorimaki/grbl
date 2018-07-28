@@ -1,4 +1,4 @@
-#include "../hal.h"
+#include "grbl_hal.h"
 #include "../grbl.h"
 
 

@@ -1,5 +1,5 @@
-#ifndef MISSIGN_H
-#define	MISSIGN_H
+#ifndef MISSING_H
+#define	MISSING_H
 
 #include <stdint.h>
 

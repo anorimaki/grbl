@@ -19,7 +19,6 @@
 */
 
 #include "grbl.h"
-#include "hal.h"
 
 
 // Inverts the probe pin state depending on user settings and probing cycle mode.
@@ -30,11 +29,13 @@ uint8_t probe_invert_mask;
 void probe_init()
 {
   //PROBE_DDR &= ~(PROBE_MASK); // Configure as input pins
-  IO_SET_INPUT( PROBE_DDR, PROBE_MASK );
+  hal_io_set_input( PROBE_DDR, PROBE_MASK );
   #ifdef DISABLE_PROBE_PIN_PULL_UP
-    PROBE_PORT &= ~(PROBE_MASK); // Normal low operation. Requires external pull-down.
+    //PROBE_PORT &= ~(PROBE_MASK); // Normal low operation. Requires external pull-down.
+	hal_io_disable_pull_up( PROBE_PORT, PROBE_MASK );
   #else
-    PROBE_PORT |= PROBE_MASK;    // Enable internal pull-up resistors. Normal high operation.
+    //PROBE_PORT |= PROBE_MASK;    // Enable internal pull-up resistors. Normal high operation.
+	hal_io_enable_pull_up( PROBE_PORT, PROBE_MASK );
   #endif
   probe_configure_invert_mask(false); // Initialize invert mask.
 }

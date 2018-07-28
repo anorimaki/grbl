@@ -20,7 +20,6 @@
 */
 
 #include "grbl.h"
-#include "hal.h"
 
 
 #ifdef VARIABLE_SPINDLE
@@ -35,16 +34,16 @@ void spindle_init()
     // Configure variable spindle PWM and enable pin, if requried. On the Uno, PWM and enable are
     // combined unless configured otherwise.
     //SPINDLE_PWM_DDR |= (1<<SPINDLE_PWM_BIT); // Configure as PWM output pin.
-    IO_SET_OUTPUT( SPINDLE_PWM_DDR, 1<<SPINDLE_PWM_BIT );
+    hal_io_set_output( SPINDLE_PWM_DDR, 1<<SPINDLE_PWM_BIT );
     //SPINDLE_TCCRA_REGISTER = SPINDLE_TCCRA_INIT_MASK; // Configure PWM output compare timer
     //SPINDLE_TCCRB_REGISTER = SPINDLE_TCCRB_INIT_MASK;
     hal_spindle_pwm_init();
     #ifdef USE_SPINDLE_DIR_AS_ENABLE_PIN
       // SPINDLE_ENABLE_DDR |= (1<<SPINDLE_ENABLE_BIT); // Configure as output pin.
-      IO_SET_OUTPUT( SPINDLE_ENABLE_DDR, 1<<SPINDLE_ENABLE_BIT );
+      hal_io_set_output( SPINDLE_ENABLE_DDR, 1<<SPINDLE_ENABLE_BIT );
     #else
       // SPINDLE_DIRECTION_DDR |= (1<<SPINDLE_DIRECTION_BIT); // Configure as output pin.
-      IO_SET_OUTPUT( SPINDLE_DIRECTION_DDR, 1<<SPINDLE_DIRECTION_BIT );
+      hal_io_set_output( SPINDLE_DIRECTION_DDR, 1<<SPINDLE_DIRECTION_BIT );
     #endif
 
     pwm_gradient = SPINDLE_PWM_RANGE/(settings.rpm_max-settings.rpm_min);
@@ -53,9 +52,9 @@ void spindle_init()
 
     // Configure no variable spindle and only enable pin.
     //SPINDLE_ENABLE_DDR |= (1<<SPINDLE_ENABLE_BIT); // Configure as output pin.
-    IO_SET_OUTPUT( SPINDLE_ENABLE_DDR, 1<<SPINDLE_ENABLE_BIT );
+    hal_io_set_output( SPINDLE_ENABLE_DDR, 1<<SPINDLE_ENABLE_BIT );
     //SPINDLE_DIRECTION_DDR |= (1<<SPINDLE_DIRECTION_BIT); // Configure as output pin.
-    IO_SET_OUTPUT( SPINDLE_DIRECTION_DDR, 1<<SPINDLE_DIRECTION_BIT );
+    hal_io_set_output( SPINDLE_DIRECTION_DDR, 1<<SPINDLE_DIRECTION_BIT );
 
   #endif
 
@@ -124,7 +123,8 @@ void spindle_stop()
   // and stepper ISR. Keep routine small and efficient.
   void spindle_set_speed(uint8_t pwm_value)
   {
-    SPINDLE_OCR_REGISTER = pwm_value; // Set PWM output level.
+    //SPINDLE_OCR_REGISTER = pwm_value; // Set PWM output level.
+	hal_spindle_pwm_duty(pwm_value);
     #ifdef SPINDLE_ENABLE_OFF_WITH_ZERO_SPEED
       if (pwm_value == SPINDLE_PWM_OFF_VALUE) {
         spindle_stop();
@@ -245,9 +245,11 @@ void spindle_stop()
   
     #ifndef USE_SPINDLE_DIR_AS_ENABLE_PIN
       if (state == SPINDLE_ENABLE_CW) {
-        SPINDLE_DIRECTION_PORT &= ~(1<<SPINDLE_DIRECTION_BIT);
+       // SPINDLE_DIRECTION_PORT &= ~(1<<SPINDLE_DIRECTION_BIT);
+		hal_io_crl_bit( SPINDLE_DIRECTION_PORT, SPINDLE_DIRECTION_BIT );
       } else {
-        SPINDLE_DIRECTION_PORT |= (1<<SPINDLE_DIRECTION_BIT);
+        //SPINDLE_DIRECTION_PORT |= (1<<SPINDLE_DIRECTION_BIT);
+		hal_io_set_bit( SPINDLE_DIRECTION_PORT, SPINDLE_DIRECTION_BIT );
       }
     #endif
   

@@ -20,8 +20,7 @@
 */
 
 #include "grbl.h"
-#include "hal.h"
-#include "missign.h"
+#include "missing.h"
 
 
 // Homing axis search distance multiplier. Computed by this value times the cycle travel.
@@ -35,12 +34,14 @@
 void limits_init()
 {
   //LIMIT_DDR &= ~(LIMIT_MASK); // Set as input pins
-  IO_SET_INPUT( LIMIT_DDR, LIMIT_MASK );
+  hal_io_set_input( LIMIT_DDR, LIMIT_MASK );
 
   #ifdef DISABLE_LIMIT_PIN_PULL_UP
-    LIMIT_PORT &= ~(LIMIT_MASK); // Normal low operation. Requires external pull-down.
+  //    LIMIT_PORT &= ~(LIMIT_MASK); // Normal low operation. Requires external pull-down.
+	hal_io_disable_pull_up( LIMIT_PORT, LIMIT_MASK );
   #else
-    LIMIT_PORT |= (LIMIT_MASK);  // Enable internal pull-up resistors. Normal high operation.
+  //  LIMIT_PORT |= (LIMIT_MASK);  // Enable internal pull-up resistors. Normal high operation.
+  	hal_io_enable_pull_up( LIMIT_PORT, LIMIT_MASK );
   #endif
 
   if (bit_istrue(settings.flags,BITFLAG_HARD_LIMIT_ENABLE)) {
@@ -48,6 +49,8 @@ void limits_init()
     //PCICR |= (1 << LIMIT_INT); // Enable Pin Change Interrupt
     hal_limits_interrupts_enable();
   } else {
+
+	  
     limits_disable();
   }
 
@@ -103,7 +106,6 @@ uint8_t limits_get_state()
 #ifndef ENABLE_SOFTWARE_DEBOUNCE
   ISR(limits_isr) // DEFAULT: Limit pin change interrupt process.
   {
-LATCbits.LATC5=1;    
     // Ignore limit switches if already in an alarm state or in-process of executing an alarm.
     // When in the alarm state, Grbl should have been reset or will force a reset, so any pending
     // moves in the planner and serial buffers are all cleared and newly sent blocks will be
@@ -123,7 +125,6 @@ LATCbits.LATC5=1;
         #endif
       }
     }
-LATCbits.LATC5=0;  
   }
 #else // OPTIONAL: Software debounce limit pin routine.
   // Upon limit pin change, enable watchdog timer to create a short delay. 

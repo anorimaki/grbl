@@ -20,7 +20,6 @@
 */
 
 #include "grbl.h"
-#include "hal.h"
 
 void printString(const char *s)
 {

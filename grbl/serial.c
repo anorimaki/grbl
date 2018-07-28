@@ -20,7 +20,6 @@
 */
 
 #include "grbl.h"
-#include "hal.h"
 
 #define RX_RING_BUFFER (RX_BUFFER_SIZE+1)
 #define TX_RING_BUFFER (TX_BUFFER_SIZE+1)
@@ -157,7 +156,8 @@ uint8_t serial_read()
 
 ISR(uart_rx_isr)
 {
-  uint8_t data = UART_RCV_DATA;
+  //uint8_t data = UDR0;
+  uint8_t data = hal_serial_recv();
   uint8_t next_head;
 
   // Pick off realtime command characters directly from the serial stream. These characters are

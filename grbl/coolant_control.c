@@ -19,13 +19,12 @@
 */
 
 #include "grbl.h"
-#include "hal.h"
 
 
 void coolant_init()
 {
   //COOLANT_FLOOD_DDR |= (1 << COOLANT_FLOOD_BIT); // Configure as output pin
-  IO_SET_OUTPUT(COOLANT_FLOOD_DDR, COOLANT_FLOOD_BIT);
+  hal_io_set_output(COOLANT_FLOOD_DDR, COOLANT_FLOOD_BIT);
   #ifdef ENABLE_M7
     COOLANT_MIST_DDR |= (1 << COOLANT_MIST_BIT);
   #endif
@@ -62,9 +61,11 @@ uint8_t coolant_get_state()
 void coolant_stop()
 {
   #ifdef INVERT_COOLANT_FLOOD_PIN
-    COOLANT_FLOOD_PORT |= (1 << COOLANT_FLOOD_BIT);
+    //COOLANT_FLOOD_PORT |= (1 << COOLANT_FLOOD_BIT);
+	hal_io_set_bit(COOLANT_FLOOD_PORT, COOLANT_FLOOD_BIT);
   #else
-    COOLANT_FLOOD_PORT &= ~(1 << COOLANT_FLOOD_BIT);
+    //COOLANT_FLOOD_PORT &= ~(1 << COOLANT_FLOOD_BIT);
+	hal_io_crl_bit(COOLANT_FLOOD_PORT, COOLANT_FLOOD_BIT);
   #endif
   #ifdef ENABLE_M7
     #ifdef INVERT_COOLANT_MIST_PIN
@@ -92,9 +93,11 @@ void coolant_set_state(uint8_t mode)
   
     if (mode & COOLANT_FLOOD_ENABLE) {
       #ifdef INVERT_COOLANT_FLOOD_PIN
-        COOLANT_FLOOD_PORT &= ~(1 << COOLANT_FLOOD_BIT);
+        //COOLANT_FLOOD_PORT &= ~(1 << COOLANT_FLOOD_BIT);
+		hal_io_crl_bit(COOLANT_FLOOD_PORT, COOLANT_FLOOD_BIT);
       #else
-        COOLANT_FLOOD_PORT |= (1 << COOLANT_FLOOD_BIT);
+        //COOLANT_FLOOD_PORT |= (1 << COOLANT_FLOOD_BIT);
+		hal_io_set_bit(COOLANT_FLOOD_PORT, COOLANT_FLOOD_BIT);
       #endif
     }
   

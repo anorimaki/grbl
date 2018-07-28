@@ -20,7 +20,6 @@
 */
 
 #include "grbl.h"
-#include "hal.h"
 #include <stdio.h>
 
 // Declare system global variable structure

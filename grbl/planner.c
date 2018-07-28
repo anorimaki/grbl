@@ -21,7 +21,6 @@
 */
 
 #include "grbl.h"
-#include "missign.h"
 
 static plan_block_t block_buffer[BLOCK_BUFFER_SIZE];  // A ring buffer for motion instructions
 static uint8_t block_buffer_tail;     // Index of the block to process now

@@ -4,9 +4,15 @@
 #include <xc.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include "pic18f26k80_cpu_map.h"
 
-#define IO_SET_OUTPUT(tris, mask) tris &= ~(mask)
-#define IO_SET_INPUT(tris, mask) tris |= mask
+void hal_init();
+
+
+#define hal_io_set_output(tris, mask) tris &= ~(mask)
+#define hal_io_set_input(tris, mask) tris |= mask
+#define hal_io_enable_pull_up(tris, mask) tris |= mask
+#define hal_io_set_level(port, mask, value) port = (port & ~mask) | (mask & value)
 
 #define ISR(func) void func()
 #define cli() INTCONbits.GIE = 0
@@ -29,6 +35,10 @@ typedef union CCPR2Reg_tag {
   };
 } CCP_PERIOD_REG_T ;
 
+void hal_stepper_pulse_period_engine_init();
+void hal_stepper_pulse_period_engine_stop();
+void hal_stepper_pulse_period_engine_start();
+
 /*
  * Original code:
  *  OCR1A = st.exec_segment->cycles_per_tick;
@@ -38,6 +48,8 @@ typedef union CCPR2Reg_tag {
   module.ccpr = value;      \
   CCPR5L = module.ccprl;    \
   CCPR5H = module.ccprh; 
+
+void hal_stepper_pulse_length_engine_init();
 
 /*
  * Original code:
@@ -54,6 +66,9 @@ typedef union CCPR2Reg_tag {
  */
 #define hal_stepper_pulse_length_engine_stop() \
   T0CONbits.TMR0ON = 0;
+
+ISR(stepper_pulse_rising_edge);
+ISR(stepper_pulse_falling_edge);
 
 /*
  * Original code:
@@ -73,7 +88,7 @@ typedef union CCPR2Reg_tag {
 // INT1 External Interrupt Flag bit: 0
 #define hal_limits_interrupts_enable() \
   INTCON2 &= 0b11000101;  \
-  INTCON3 = 0b00111000;   \
+  INTCON3 = 0b00111000; 
 
 /*
  * Original code:
@@ -82,6 +97,8 @@ typedef union CCPR2Reg_tag {
  */
 #define hal_limits_interrupts_disable() \
   INTCON3 &= 0b11000111;    // Disable INT1, INT2 and INT3 External Interrupts
+
+ISR(limits_isr);
 
 /*
  * Original code:
@@ -95,6 +112,9 @@ typedef union CCPR2Reg_tag {
   INTCON2bits.RBIP = 0;             \
       /*RB Port Change Interrupt enbaled*/  \
   INTCONbits.RBIE = 1;
+
+
+void hal_spindle_pwm_init();
 
 /*
  * Original code:
@@ -116,6 +136,10 @@ typedef union CCPR2Reg_tag {
  */
 #define hal_spindle_pwm_disable() \
   CCP2CON = 0;
+
+void hal_serial_init();
+ISR(uart_tx_isr);
+ISR(uart_rx_isr);
 
 /*
  * Original code:
@@ -144,5 +168,7 @@ typedef union CCPR2Reg_tag {
   TXREG1 = v;
 
 #define UART_RCV_DATA RCREG1
+
+ISR(control_isr);
 
 #endif	/* PIC18F26K80_HAL_H */

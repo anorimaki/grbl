@@ -19,22 +19,23 @@
 */
 
 #include "grbl.h"
-#include "hal.h"
 
 
 void system_init()
 {
   //CONTROL_DDR &= ~(CONTROL_MASK); // Configure as input pins
-  IO_SET_INPUT( CONTROL_DDR, CONTROL_MASK );
+  hal_io_set_input( CONTROL_DDR, CONTROL_MASK );
   
   #ifdef DISABLE_CONTROL_PIN_PULL_UP
-    CONTROL_PORT &= ~(CONTROL_MASK); // Normal low operation. Requires external pull-down.
+    //CONTROL_PORT &= ~(CONTROL_MASK); // Normal low operation. Requires external pull-down.
+	hal_io_disable_pull_up( CONTROL_PORT, CONTROL_MASK );
   #else
-    CONTROL_PORT |= CONTROL_MASK;   // Enable internal pull-up resistors. Normal high operation.
+    //CONTROL_PORT |= CONTROL_MASK;   // Enable internal pull-up resistors. Normal high operation.
+	hal_io_enable_pull_up( CONTROL_PORT, CONTROL_MASK );
   #endif
   //CONTROL_PCMSK |= CONTROL_MASK;  // Enable specific pins of the Pin Change Interrupt
   //PCICR |= (1 << CONTROL_INT);   // Enable Pin Change Interrupt
-  hal_system_interrupts_enable();
+  hal_system_init();
 }
 
 
@@ -66,7 +67,6 @@ uint8_t system_control_get_state()
 // directly from the incoming serial data stream.
 ISR(control_isr)
 {
-LATCbits.LATC5=1;  
   uint8_t pin = system_control_get_state();
   if (pin) {
     if (bit_istrue(pin,CONTROL_PIN_INDEX_RESET)) {
@@ -82,7 +82,6 @@ LATCbits.LATC5=1;
     #endif
     }
   }
-LATCbits.LATC5=0;  
 }
 
 
@@ -357,57 +356,73 @@ uint8_t system_check_travel_limits(float *target)
 
 // Special handlers for setting and clearing Grbl's real-time execution flags.
 void system_set_exec_state_flag(uint8_t mask) {
-  uint8_t sreg = SREG;
-  cli();
+  //uint8_t sreg = SREG;
+  //cli();
+  hal_system_mutex_lock();
   sys_rt_exec_state |= (mask);
-  SREG = sreg;
+  //SREG = sreg;
+  hal_system_mutex_unlock();
 }
 
 void system_clear_exec_state_flag(uint8_t mask) {
-  uint8_t sreg = SREG;
-  cli();
+  //uint8_t sreg = SREG;
+  //cli();
+  hal_system_mutex_lock();
   sys_rt_exec_state &= ~(mask);
-  SREG = sreg;
+  //SREG = sreg;
+  hal_system_mutex_unlock();
 }
 
 void system_set_exec_alarm(uint8_t code) {
-  uint8_t sreg = SREG;
-  cli();
+  //uint8_t sreg = SREG;
+  //cli();
+  hal_system_mutex_lock();
   sys_rt_exec_alarm = code;
-  SREG = sreg;
+  //SREG = sreg;
+  hal_system_mutex_unlock();
 }
 
 void system_clear_exec_alarm() {
-  uint8_t sreg = SREG;
-  cli();
+  //uint8_t sreg = SREG;
+  //cli();
+  hal_system_mutex_lock();
   sys_rt_exec_alarm = 0;
-  SREG = sreg;
+  //SREG = sreg;
+  hal_system_mutex_unlock();
 }
 
 void system_set_exec_motion_override_flag(uint8_t mask) {
-  uint8_t sreg = SREG;
-  cli();
+  //uint8_t sreg = SREG;
+  //cli();
+  hal_system_mutex_lock();
   sys_rt_exec_motion_override |= (mask);
-  SREG = sreg;
+  //SREG = sreg;
+  hal_system_mutex_unlock();
 }
 
 void system_set_exec_accessory_override_flag(uint8_t mask) {
-  uint8_t sreg = SREG;
-  cli();
+  //uint8_t sreg = SREG;
+  //cli();
+  hal_system_mutex_lock();
   sys_rt_exec_accessory_override |= (mask);
-  SREG = sreg;
+  //SREG = sreg;
+  hal_system_mutex_unlock();
 }
 
 void system_clear_exec_motion_overrides() {
-  uint8_t sreg = SREG;
-  cli();
+  //uint8_t sreg = SREG;
+  //cli();
+  hal_system_mutex_lock();
   sys_rt_exec_motion_override = 0;
-  SREG = sreg;
+  //SREG = sreg;
+  hal_system_mutex_unlock();
 }
 
 void system_clear_exec_accessory_overrides() {
-  uint8_t sreg = SREG;
-  cli();
+  //uint8_t sreg = SREG;
+  //cli();
+  hal_system_mutex_lock();
   sys_rt_exec_accessory_override = 0;
-  SREG = sreg;
+  //SREG = sreg;
+  hal_system_mutex_unlock();
 }

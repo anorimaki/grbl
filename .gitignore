@@ -5,3 +5,6 @@
 *.d
 
 README.md
+.pioenvs
+.piolibdeps
+.vscode/
