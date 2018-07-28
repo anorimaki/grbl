@@ -22,8 +22,35 @@
 *                         $Date: Friday, February 11, 2005 07:16:44 UTC $
 ****************************************************************************/
 #include "eeprom.h"
+#include "grbl_hal.h"
 
 // Extensions added as part of Grbl 
+unsigned char eeprom_get_char( unsigned int addr )
+{
+	return hal_eeprom_get_char( addr );
+}
+
+/*! \brief  Write byte to EEPROM.
+ *
+ *  This function writes one byte to a given EEPROM address.
+ *  The differences between the existing byte and the new value is used
+ *  to select the most efficient EEPROM programming mode.
+ *
+ *  \note  The CPU is halted for 2 clock cycles during EEPROM programming.
+ *
+ *  \note  When this function returns, the new EEPROM value is not available
+ *         until the EEPROM programming time has passed. The EEPE bit in EECR
+ *         should be polled to check whether the programming is finished.
+ *
+ *  \note  The EEPROM_GetChar() function checks the EEPE bit automatically.
+ *
+ *  \param  addr  EEPROM address to write to.
+ *  \param  new_value  New EEPROM value.
+ */
+void eeprom_put_char( unsigned int addr, unsigned char new_value ) {
+	hal_eeprom_put_char( addr, new_value );
+}
+
 
 void memcpy_to_eeprom_with_checksum(unsigned int destination, char *source, unsigned int size) {
   unsigned char checksum = 0;
@@ -33,6 +60,7 @@ void memcpy_to_eeprom_with_checksum(unsigned int destination, char *source, unsi
     eeprom_put_char(destination++, *(source++)); 
   }
   eeprom_put_char(destination, checksum);
+  hal_eeprom_commit();
 }
 
 int memcpy_from_eeprom_with_checksum(char *destination, unsigned int source, unsigned int size) {

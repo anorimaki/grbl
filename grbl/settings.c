@@ -132,6 +132,7 @@ void settings_restore(uint8_t restore_flag) {
     eeprom_put_char(EEPROM_ADDR_BUILD_INFO , 0);
     eeprom_put_char(EEPROM_ADDR_BUILD_INFO+1 , 0); // Checksum
   }
+  hal_eeprom_commit();
 }
 
 

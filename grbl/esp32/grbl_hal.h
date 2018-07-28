@@ -41,9 +41,19 @@ void hal_init();
 /**********************************************************************/
 // Hal eeprom
 /**********************************************************************/
+#ifndef pgm_read_byte_near		//Compatibility with Arduino esp32 framework
+								// that defines this macro
 #define pgm_read_byte_near(s) (*s)
-#define PSTR(v) v
+#endif
 
+#ifndef PSTR					//Compatibility with Arduino esp32 framework
+								// that defines this macro
+#define PSTR(v) (v)
+#endif
+
+unsigned char hal_eeprom_get_char(unsigned int addr);
+void hal_eeprom_put_char(unsigned int addr, unsigned char new_value);
+void hal_eeprom_commit();
 
 /**********************************************************************/
 //	HAL interrups
@@ -96,6 +106,10 @@ void hal_system_init();
 
 #define hal_system_mutex_unlock() \
 	xSemaphoreGive(hal_system_mutex)
+
+//Redefine name of system_init function to avoid conflicts with ESP-IDF
+void grbl_system_init();
+#define system_init grbl_system_init
 
 
 /**********************************************************************/
@@ -184,13 +198,13 @@ void hal_spindle_pwm_init();
 void hal_serial_init();
 
 #define hal_serial_tx_interrupt_enable() \
-	UART.int_ena.tx_done = 1
+	UART.int_ena.txfifo_empty = 1
 
 #define hal_serial_tx_interrupt_disable() \
-	UART.int_ena.tx_done = 0
+	UART.int_ena.txfifo_empty = 0
 
 #define hal_serial_tx_interrupt_is_enabled() \
-	UART.int_ena.tx_done
+	UART.int_ena.txfifo_empty
 
 #define hal_serial_send( c ) \
 	UART.fifo.rw_byte = c;

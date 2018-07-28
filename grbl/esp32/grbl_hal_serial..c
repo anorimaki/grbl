@@ -10,9 +10,9 @@ static QueueHandle_t receive_queue;
 static void IRAM_ATTR _uart_isr(void *arg) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-	if ( UART.int_st.tx_done ) {
-		UART.int_clr.tx_done = 1;
+	if ( UART.int_st.txfifo_empty ) {
 		uart_tx_isr(NULL);
+		UART.int_clr.txfifo_empty = 1;
 	}
 
 	if ( UART.int_st.rxfifo_full ) {
@@ -62,9 +62,10 @@ void hal_serial_init() {
 
 	UART.conf1.val = 0;
 	UART.conf1.rxfifo_full_thrhd = 1;
+	UART.conf1.txfifo_empty_thrhd = 0;
 	UART.int_ena.val = 0;
     UART.int_ena.rxfifo_full = 1;
  	UART.int_clr.val = 0xffffffff;
-
+	
 	esp_intr_alloc(ETS_UART0_INTR_SOURCE, (int)ESP_INTR_FLAG_IRAM, _uart_isr, NULL, &intr_handle);
 }
