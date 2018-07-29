@@ -35,6 +35,8 @@ extern "C" {
 
 #define CALLED_FROM_ISR_ATTR	IRAM_ATTR
 
+#define __flash
+
 void hal_init();
 
 

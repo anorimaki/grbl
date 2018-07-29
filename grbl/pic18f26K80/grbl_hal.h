@@ -15,6 +15,7 @@ void hal_init();
 #define _XTAL_FREQ  64000000
 #define F_CPU (_XTAL_FREQ/4)
 
+#define __flash
 
 /**********************************************************************/
 // Hal eeprom
