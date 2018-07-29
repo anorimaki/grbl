@@ -168,7 +168,7 @@ void hal_serial_init() {
 }
 
 
-unsigned char eeprom_get_char( unsigned int addr ) {
+unsigned char hal_eeprom_get_char( unsigned int addr ) {
     EEADRH = addr >> 8;
 	EEADR = (unsigned char)(addr & 0xFF);
     EECON1bits.CFGS = 0;
@@ -181,7 +181,7 @@ unsigned char eeprom_get_char( unsigned int addr ) {
 }
 
 
-void eeprom_put_char( unsigned int addr, unsigned char new_value ) {
+void hal_eeprom_put_char( unsigned int addr, unsigned char new_value ) {
 	unsigned char GIEBitValue = INTCONbits.GIE;
 
     EEADRH = addr >> 8;

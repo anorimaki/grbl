@@ -65,7 +65,7 @@ void coolant_stop()
 	hal_io_set_bit(COOLANT_FLOOD_PORT, COOLANT_FLOOD_BIT);
   #else
     //COOLANT_FLOOD_PORT &= ~(1 << COOLANT_FLOOD_BIT);
-	hal_io_crl_bit(COOLANT_FLOOD_PORT, COOLANT_FLOOD_BIT);
+	hal_io_clr_bit(COOLANT_FLOOD_PORT, COOLANT_FLOOD_BIT);
   #endif
   #ifdef ENABLE_M7
     #ifdef INVERT_COOLANT_MIST_PIN

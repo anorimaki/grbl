@@ -218,7 +218,7 @@ void st_wake_up()
   }
   else { 
 	//STEPPERS_DISABLE_PORT &= ~(1<<STEPPERS_DISABLE_BIT);
-	hal_io_crl_bit(STEPPERS_DISABLE_PORT, STEPPERS_DISABLE_BIT);
+	hal_io_clr_bit(STEPPERS_DISABLE_PORT, STEPPERS_DISABLE_BIT);
   }
 
   // Initialize stepper output bits to ensure first ISR call does not step.
@@ -265,7 +265,7 @@ void st_go_idle()
   }
   else { 
 	//STEPPERS_DISABLE_PORT &= ~(1<<STEPPERS_DISABLE_BIT); 
-	hal_io_crl_bit(STEPPERS_DISABLE_PORT, STEPPERS_DISABLE_BIT);
+	hal_io_clr_bit(STEPPERS_DISABLE_PORT, STEPPERS_DISABLE_BIT);
   }
 }
 

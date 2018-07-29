@@ -55,6 +55,7 @@ unsigned char hal_eeprom_get_char(unsigned int addr);
 void hal_eeprom_put_char(unsigned int addr, unsigned char new_value);
 void hal_eeprom_commit();
 
+
 /**********************************************************************/
 //	HAL interrups
 /**********************************************************************/
@@ -79,7 +80,7 @@ void IRAM_ATTR hal_io_set( uint8_t index, uint8_t mask, uint8_t value);
 #define hal_io_set_bit(index, bit) \
 	hal_io_set(index, 1<<(bit), 1<<(bit))
 
-#define hal_io_crl_bit(index, bit) \
+#define hal_io_clr_bit(index, bit) \
 	hal_io_set(index, 1<<(bit), 0)
 
 #define hal_io_get(index, mask) \
