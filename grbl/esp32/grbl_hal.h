@@ -111,6 +111,8 @@ void hal_system_init();
 void grbl_system_init();
 #define system_init grbl_system_init
 
+ISR(control_isr);
+
 
 /**********************************************************************/
 //	HAL stepper

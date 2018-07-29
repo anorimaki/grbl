@@ -25,8 +25,7 @@
 #include "grbl_hal.h"
 
 // Extensions added as part of Grbl 
-unsigned char eeprom_get_char( unsigned int addr )
-{
+unsigned char eeprom_get_char( unsigned int addr ) {
 	return hal_eeprom_get_char( addr );
 }
 
