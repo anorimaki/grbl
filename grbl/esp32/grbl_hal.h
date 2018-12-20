@@ -188,7 +188,7 @@ void hal_spindle_pwm_init();
 //From ESP-IDF ledc_set_duty and ledc_update_duty
 #define hal_spindle_pwm_duty(value)   \
 	LEDC.channel_group[LEDC_HIGH_SPEED_MODE].channel[LEDC_CHANNEL_0].hpoint.hpoint = 0;		\
-    LEDC.channel_group[LEDC_HIGH_SPEED_MODE].channel[LEDC_CHANNEL_0].duty.duty = value;	\
+    LEDC.channel_group[LEDC_HIGH_SPEED_MODE].channel[LEDC_CHANNEL_0].duty.duty = (value<<4);	\
     LEDC.channel_group[LEDC_HIGH_SPEED_MODE].channel[LEDC_CHANNEL_0].conf1.val = \
 														LEDC_DUTY_INC_HSCH0 |	\
 														(1 << LEDC_DUTY_NUM_HSCH0_S) |	\

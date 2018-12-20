@@ -1,6 +1,6 @@
 #include "grbl_hal.h"
 #include "driver/gpio.h"
-
+#include "../print.h"
 
 void hal_io_set_output_( uint64_t mask ) {
 	uint32_t io_num = 0;
@@ -8,7 +8,7 @@ void hal_io_set_output_( uint64_t mask ) {
         if ( (mask >> io_num) & BIT(0) ) {	
 			gpio_pulldown_dis(io_num);
 			gpio_pullup_dis(io_num);
-			gpio_set_direction(io_num, GPIO_MODE_DEF_OUTPUT);
+			gpio_set_direction(io_num, GPIO_MODE_INPUT_OUTPUT);
 			PIN_FUNC_SELECT(GPIO_PIN_MUX_REG[io_num], PIN_FUNC_GPIO);
         }
         io_num++;

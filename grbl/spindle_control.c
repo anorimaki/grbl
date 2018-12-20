@@ -34,16 +34,16 @@ void spindle_init()
     // Configure variable spindle PWM and enable pin, if requried. On the Uno, PWM and enable are
     // combined unless configured otherwise.
     //SPINDLE_PWM_DDR |= (1<<SPINDLE_PWM_BIT); // Configure as PWM output pin.
-    hal_io_set_output( SPINDLE_PWM_DDR, 1<<SPINDLE_PWM_BIT );
+    hal_io_set_output( SPINDLE_PWM_DDR, 1LL<<SPINDLE_PWM_BIT );
     //SPINDLE_TCCRA_REGISTER = SPINDLE_TCCRA_INIT_MASK; // Configure PWM output compare timer
     //SPINDLE_TCCRB_REGISTER = SPINDLE_TCCRB_INIT_MASK;
     hal_spindle_pwm_init();
     #ifdef USE_SPINDLE_DIR_AS_ENABLE_PIN
       // SPINDLE_ENABLE_DDR |= (1<<SPINDLE_ENABLE_BIT); // Configure as output pin.
-      hal_io_set_output( SPINDLE_ENABLE_DDR, 1<<SPINDLE_ENABLE_BIT );
+      hal_io_set_output( SPINDLE_ENABLE_DDR, 1LL<<SPINDLE_ENABLE_BIT );
     #else
       // SPINDLE_DIRECTION_DDR |= (1<<SPINDLE_DIRECTION_BIT); // Configure as output pin.
-      hal_io_set_output( SPINDLE_DIRECTION_DDR, 1<<SPINDLE_DIRECTION_BIT );
+      hal_io_set_output( SPINDLE_DIRECTION_DDR, 1LL<<SPINDLE_DIRECTION_BIT );
     #endif
 
     pwm_gradient = SPINDLE_PWM_RANGE/(settings.rpm_max-settings.rpm_min);
@@ -52,9 +52,9 @@ void spindle_init()
 
     // Configure no variable spindle and only enable pin.
     //SPINDLE_ENABLE_DDR |= (1<<SPINDLE_ENABLE_BIT); // Configure as output pin.
-    hal_io_set_output( SPINDLE_ENABLE_DDR, 1<<SPINDLE_ENABLE_BIT );
+    hal_io_set_output( SPINDLE_ENABLE_DDR, 1LL<<SPINDLE_ENABLE_BIT );
     //SPINDLE_DIRECTION_DDR |= (1<<SPINDLE_DIRECTION_BIT); // Configure as output pin.
-    hal_io_set_output( SPINDLE_DIRECTION_DDR, 1<<SPINDLE_DIRECTION_BIT );
+    hal_io_set_output( SPINDLE_DIRECTION_DDR, 1LL<<SPINDLE_DIRECTION_BIT );
 
   #endif
 
@@ -110,9 +110,11 @@ void spindle_stop()
     #endif
   #else
     #ifdef INVERT_SPINDLE_ENABLE_PIN
-      SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
+      // SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
+	  hal_io_set_bit( SPINDLE_ENABLE_PORT, SPINDLE_ENABLE_BIT );
     #else
-      SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
+      // SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
+	  hal_io_clr_bit( SPINDLE_ENABLE_PORT, SPINDLE_ENABLE_BIT );
     #endif
   #endif
 }
@@ -265,9 +267,11 @@ void spindle_stop()
       // NOTE: Without variable spindle, the enable bit should just turn on or off, regardless
       // if the spindle speed value is zero, as its ignored anyhow.
       #ifdef INVERT_SPINDLE_ENABLE_PIN
-        SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT);
+        // SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT);
+		hal_io_clr_bit( SPINDLE_ENABLE_PORT, SPINDLE_ENABLE_BIT );
       #else
-        SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);
+        // SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);
+		hal_io_set_bit( SPINDLE_ENABLE_PORT, SPINDLE_ENABLE_BIT );
       #endif    
     #endif
   

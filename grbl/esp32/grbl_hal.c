@@ -2,6 +2,7 @@
 #include "esp_attr.h"
 #include "driver/gpio.h"
 #include "esp_task_wdt.h"
+#include "nvs_flash.h"
 #include "freertos/task.h"
 
 
@@ -33,6 +34,8 @@ static gpio_isr_handle_t gpio_isr_handle;
 
 void hal_init() {
 	disable_wdt_of_cpu0();
+
+	ESP_CHECK(nvs_flash_init());
 
 	//gpio_int_type_t int_type = GPIO_PIN_INTR_ANYEDGE;
 	gpio_int_type_t int_type = GPIO_PIN_INTR_NEGEDGE;

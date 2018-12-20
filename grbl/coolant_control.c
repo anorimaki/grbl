@@ -24,9 +24,10 @@
 void coolant_init()
 {
   //COOLANT_FLOOD_DDR |= (1 << COOLANT_FLOOD_BIT); // Configure as output pin
-  hal_io_set_output(COOLANT_FLOOD_DDR, COOLANT_FLOOD_BIT);
+  hal_io_set_output(COOLANT_FLOOD_DDR, 1ULL << COOLANT_FLOOD_BIT);
   #ifdef ENABLE_M7
-    COOLANT_MIST_DDR |= (1 << COOLANT_MIST_BIT);
+    //COOLANT_MIST_DDR |= (1 << COOLANT_MIST_BIT);
+	hal_io_set_output(COOLANT_MIST_DDR, 1ULL << COOLANT_MIST_BIT);
   #endif
   coolant_stop();
 }
@@ -37,17 +38,21 @@ uint8_t coolant_get_state()
 {
   uint8_t cl_state = COOLANT_STATE_DISABLE;
   #ifdef INVERT_COOLANT_FLOOD_PIN
-    if (bit_isfalse(COOLANT_FLOOD_PORT,(1 << COOLANT_FLOOD_BIT))) {
+    //if (bit_isfalse(COOLANT_FLOOD_PORT,(1 << COOLANT_FLOOD_BIT))) {
+	if ( !hal_io_get(COOLANT_FLOOD_PORT, COOLANT_FLOOD_BIT) ) {
   #else
-    if (bit_istrue(COOLANT_FLOOD_PORT,(1 << COOLANT_FLOOD_BIT))) {
+    //if (bit_istrue(COOLANT_FLOOD_PORT,(1 << COOLANT_FLOOD_BIT))) {
+	if ( hal_io_get(COOLANT_FLOOD_PORT, COOLANT_FLOOD_BIT) ) {
   #endif
     cl_state |= COOLANT_STATE_FLOOD;
   }
   #ifdef ENABLE_M7
     #ifdef INVERT_COOLANT_MIST_PIN
-      if (bit_isfalse(COOLANT_MIST_PORT,(1 << COOLANT_MIST_BIT))) {
+      //if (bit_isfalse(COOLANT_MIST_PORT,(1 << COOLANT_MIST_BIT))) {
+	  if ( !hal_io_get(COOLANT_MIST_PORT, COOLANT_MIST_BIT) ) {
     #else
-      if (bit_istrue(COOLANT_MIST_PORT,(1 << COOLANT_MIST_BIT))) {
+      //if (bit_istrue(COOLANT_MIST_PORT,(1 << COOLANT_MIST_BIT))) {
+	  if ( hal_io_get(COOLANT_MIST_PORT, COOLANT_MIST_BIT) ) {
     #endif
       cl_state |= COOLANT_STATE_MIST;
     }
@@ -69,9 +74,11 @@ void coolant_stop()
   #endif
   #ifdef ENABLE_M7
     #ifdef INVERT_COOLANT_MIST_PIN
-      COOLANT_MIST_PORT |= (1 << COOLANT_MIST_BIT);
+      //COOLANT_MIST_PORT |= (1 << COOLANT_MIST_BIT);
+	  hal_io_set_bit(COOLANT_MIST_PORT, COOLANT_MIST_BIT);
     #else
-      COOLANT_MIST_PORT &= ~(1 << COOLANT_MIST_BIT);
+      //COOLANT_MIST_PORT &= ~(1 << COOLANT_MIST_BIT);
+	  hal_io_clr_bit(COOLANT_MIST_PORT, COOLANT_MIST_BIT);
     #endif
   #endif
 }
@@ -106,15 +113,19 @@ void coolant_set_state(uint8_t mode)
 	#ifdef ENABLE_M7
 		if (mode & COOLANT_MIST_ENABLE) {
 			#ifdef INVERT_COOLANT_MIST_PIN
-				COOLANT_MIST_PORT &= ~(1 << COOLANT_MIST_BIT);
+			//	COOLANT_MIST_PORT &= ~(1 << COOLANT_MIST_BIT);
+			hal_io_clr_bit(COOLANT_MIST_PORT, COOLANT_MIST_BIT);
 			#else
-				COOLANT_MIST_PORT |= (1 << COOLANT_MIST_BIT);
+			//	COOLANT_MIST_PORT |= (1 << COOLANT_MIST_BIT);
+			hal_io_set_bit(COOLANT_MIST_PORT, COOLANT_MIST_BIT);
 			#endif
 		} else {
 			#ifdef INVERT_COOLANT_MIST_PIN
-				COOLANT_MIST_PORT |= (1 << COOLANT_MIST_BIT);
+			//	COOLANT_MIST_PORT |= (1 << COOLANT_MIST_BIT);
+			hal_io_set_bit(COOLANT_MIST_PORT, COOLANT_MIST_BIT);
 			#else
-				COOLANT_MIST_PORT &= ~(1 << COOLANT_MIST_BIT);
+			//	COOLANT_MIST_PORT &= ~(1 << COOLANT_MIST_BIT);
+			hal_io_clr_bit(COOLANT_MIST_PORT, COOLANT_MIST_BIT);
 			#endif
 		}
 	#endif

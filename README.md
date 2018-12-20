@@ -7,4 +7,4 @@ PIC18 and ESP32 port of [Grbl project](https://github.com/gnea/grbl)
 
 ## State
 - PIC18F26K80: Under construction (but working)
-- ESP32: Not started
+- ESP32: Under construction (but working)

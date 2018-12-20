@@ -2,19 +2,19 @@
 #define ESP32_CPU_MAP_H
 
 // Define step pulse output pins. NOTE: All step bit pins must be on the same byte.
-#define STEP_DDR        3			//fourth byte
+#define STEP_DDR        1			//fourth byte
 #define STEP_PORT		STEP_DDR
-#define X_STEP_BIT      1  	// GPIO 25
-#define Y_STEP_BIT      2  	// GPIO 26
-#define Z_STEP_BIT      3  	// GPIO 27
+#define X_STEP_BIT      6  // GPIO 14
+#define Y_STEP_BIT      4  // GPIO 12
+#define Z_STEP_BIT      5  // GPIO 13 
 #define STEP_MASK       ((1ULL<<X_STEP_BIT)|(1ULL<<Y_STEP_BIT)|(1ULL<<Z_STEP_BIT)) // All step bits
 
   // Define step direction output pins. NOTE: All direction pins must be on the same byte.
-#define DIRECTION_DDR     1			//Second byte
+#define DIRECTION_DDR     3			//Second byte
 #define DIRECTION_PORT    DIRECTION_DDR
-#define X_DIRECTION_BIT   6  // GPIO 14
-#define Y_DIRECTION_BIT   4  // GPIO 12
-#define Z_DIRECTION_BIT   5  // GPIO 13
+#define X_DIRECTION_BIT   1  	// GPIO 25
+#define Y_DIRECTION_BIT   2  	// GPIO 26
+#define Z_DIRECTION_BIT   3  	// GPIO 27
 #define DIRECTION_MASK    ((1ULL<<X_DIRECTION_BIT)|(1ULL<<Y_DIRECTION_BIT)|(1ULL<<Z_DIRECTION_BIT)) 
 
   // Define stepper driver enable/disable output pin.
@@ -31,7 +31,7 @@
 #define X_LIMIT_BIT		0  	// GPIO 0
 #define Y_LIMIT_BIT		4  	// GPIO 4
 #ifdef VARIABLE_SPINDLE // Z Limit pin and spindle enabled swapped to access hardware PWM on Pin 11.
-	#define Z_LIMIT_BIT		5 	// GPIO 4
+	#define Z_LIMIT_BIT		5 	// GPIO 5
 #else
 	#define Z_LIMIT_BIT		5	// GPIO 5
 #endif
@@ -44,12 +44,12 @@
 #ifdef VARIABLE_SPINDLE
 	#ifdef USE_SPINDLE_DIR_AS_ENABLE_PIN
 		// If enabled, spindle direction pin now used as spindle enable, while PWM remains on D11.
-		#define SPINDLE_ENABLE_BIT    7		// GPIO 23
+		#define SPINDLE_ENABLE_BIT    3 	// GPIO 19
 	#else
-		#define SPINDLE_ENABLE_BIT    7 	// GPIO 23
+		#define SPINDLE_ENABLE_BIT    3 	// GPIO 19
 	#endif
 #else
-	#define SPINDLE_ENABLE_BIT    7  // GPIO 23
+	#define SPINDLE_ENABLE_BIT    3 	// GPIO 19
 #endif
 #ifndef USE_SPINDLE_DIR_AS_ENABLE_PIN
 	#define SPINDLE_DIRECTION_DDR   2
@@ -72,7 +72,7 @@
 #define CONTROL_PORT      CONTROL_DDR
 #define CONTROL_RESET_BIT         5  // GPIO 21
 #define CONTROL_FEED_HOLD_BIT     6  // GPIO 22
-#define CONTROL_CYCLE_START_BIT   3  // GPIO 19
+#define CONTROL_CYCLE_START_BIT   7  // GPIO 23
 #define CONTROL_SAFETY_DOOR_BIT   6  // GPIO 22 NOTE: Safety door is shared with feed hold. Enabled by config define.
 //#define CONTROL_INT       PCIE1  // Pin change interrupt enable pin
 //#define CONTROL_INT_vect  PCINT1_vect
@@ -108,9 +108,9 @@
 //#define SPINDLE_TCCRB_INIT_MASK      (1<<CS22)               // 1/64 prescaler -> 0.98kHz (J-tech laser)
 
 // NOTE: On the 328p, these must be the same as the SPINDLE_ENABLE settings.
-#define SPINDLE_PWM_DDR	  1
-#define SPINDLE_PWM_PORT    SPINDLE_PWM_DDR
-#define SPINDLE_PWM_BIT	  7    // GPIO 15
+#define SPINDLE_PWM_DDR	  SPINDLE_ENABLE_DDR
+#define SPINDLE_PWM_PORT  SPINDLE_PWM_DDR
+#define SPINDLE_PWM_BIT	  SPINDLE_ENABLE_BIT
 
 #endif
 

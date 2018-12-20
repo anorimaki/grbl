@@ -13,7 +13,6 @@ static nvs_handle store_handle;
 static unsigned char storage_data[STORAGE_BLOB_SIZE];
 
 static void hal_eeprom_init() {
-	ESP_CHECK(nvs_flash_init());
 	ESP_CHECK(nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &store_handle));
 
 	size_t storage_size = STORAGE_BLOB_SIZE;
